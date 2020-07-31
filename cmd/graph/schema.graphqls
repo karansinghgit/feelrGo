@@ -1,0 +1,51 @@
+scalar Time
+
+type Feelr {
+  id: ID!
+  question: String!
+  timestamp: Time!
+  topic: String!
+}
+
+type Message {
+  chat: ID!
+  sender: ID!
+  text: String
+  feelr: ID
+  senderAnswer: String
+  receiverAnswer: String
+  timestamp: Time!
+}
+
+type User {
+  id: ID!
+  name: String!
+}
+
+type Chat {
+  id: ID!
+  sender: ID!
+  receiver: ID!
+}
+
+type Query {
+  getTopFeelrs(top: Int = 20): [Feelr!]
+  getMessages(chatID: ID!, last: Int = 50): [Message!]
+  getUserInfo(userID: ID!): User!
+}
+
+type Mutation {
+  createFeelr(question: String!, topic: String!): Feelr!
+
+  sendTextMessage(chatID: ID!, sender: ID!, text: String!): Message!
+  sendFeelrMessage(
+    chatID: ID!
+    feelrID: ID!
+    sender: ID!
+    answer: String!
+  ): Message!
+}
+
+type Subscription {
+  messageAdded(chatID: ID!): Message!
+}
