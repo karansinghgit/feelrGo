@@ -10,13 +10,18 @@ import (
 	"time"
 
 	"github.com/google/uuid"
-	dao "github.com/karansinghgit/feelrGo/cmd/dao"
-	"github.com/karansinghgit/feelrGo/cmd/graph/generated"
-	"github.com/karansinghgit/feelrGo/cmd/graph/model"
-
-	elastic "github.com/olivere/elastic/v7"
+	"github.com/karansinghgit/feelrGo/cmd/utils"
+	db "github.com/karansinghgit/feelrGo/db"
+	"github.com/karansinghgit/feelrGo/graph/generated"
+	"github.com/karansinghgit/feelrGo/graph/model"
+	"github.com/olivere/elastic/v7"
 )
 
+var client = db.GetNewClient()
+
+var index = "app"
+
+//Works
 func (r *mutationResolver) CreateFeelr(ctx context.Context, question string, topic string) (*model.Feelr, error) {
 	f := &model.Feelr{
 		ID:        uuid.New().String(),
@@ -25,7 +30,17 @@ func (r *mutationResolver) CreateFeelr(ctx context.Context, question string, top
 		Timestamp: time.Now(),
 	}
 
-	err := dao.AddFeelr(ctx, r.Client, f)
+	s, err := utils.ParseToString(f)
+
+	if err != nil {
+		fmt.Println("fa")
+		return nil, err
+	}
+
+	_, err = client.Index().
+		Index(index).
+		BodyString(s).
+		Do(ctx)
 
 	if err != nil {
 		fmt.Println("Error Storing the Feelr")
@@ -36,6 +51,7 @@ func (r *mutationResolver) CreateFeelr(ctx context.Context, question string, top
 	return f, nil
 }
 
+//Works
 func (r *mutationResolver) SendTextMessage(ctx context.Context, chatID string, sender string, text string) (*model.Message, error) {
 	m := &model.Message{
 		Chat:      chatID,
@@ -44,21 +60,35 @@ func (r *mutationResolver) SendTextMessage(ctx context.Context, chatID string, s
 		Timestamp: time.Now(),
 	}
 
-	err := dao.AddMessage(ctx, r.Client, m)
+	s, err := utils.ParseToString(m)
+
 	if err != nil {
+		fmt.Println("fa")
 		return nil, err
 	}
+
+	_, err = client.Index().
+		Index(index).
+		BodyString(s).
+		Do(ctx)
+
+	if err != nil {
+		fmt.Println("Error Storing the Feelr", err)
+		return nil, err
+	}
+
 	fmt.Println("Insertion Successful")
 	return m, nil
 }
 
+//Works
 func (r *mutationResolver) SendFeelrMessage(ctx context.Context, chatID string, feelrID string, sender string, answer string) (*model.Message, error) {
 	chatQuery := elastic.NewMatchQuery("chat", chatID)
 	feelrQuery := elastic.NewMatchQuery("feelr", feelrID)
 
 	query := elastic.NewBoolQuery().Must(chatQuery, feelrQuery)
-	searchResult, err := r.Client.Search().
-		Index("feelr").
+	searchResult, err := client.Search().
+		Index(index).
 		Query(query).
 		Do(ctx)
 
@@ -68,7 +98,7 @@ func (r *mutationResolver) SendFeelrMessage(ctx context.Context, chatID string, 
 	var m *model.Message
 
 	if searchResult.Hits.TotalHits.Value > 0 {
-		res, err := r.Client.Update().Index("feelr").Id(searchResult.Hits.Hits[0].Id).Doc(map[string]interface{}{"receiverAnswer": answer}).Do(ctx)
+		res, err := client.Update().Index("feelr").Id(searchResult.Hits.Hits[0].Id).Doc(map[string]interface{}{"receiverAnswer": answer}).Do(ctx)
 		if err != nil {
 			return nil, err
 		}
@@ -88,8 +118,8 @@ func (r *mutationResolver) SendFeelrMessage(ctx context.Context, chatID string, 
 		}
 		dataJSON, err := json.Marshal(m)
 		js := string(dataJSON)
-		_, err = r.Client.Index().
-			Index("feelr").
+		_, err = client.Index().
+			Index(index).
 			BodyJson(js).
 			Do(ctx)
 
@@ -101,10 +131,12 @@ func (r *mutationResolver) SendFeelrMessage(ctx context.Context, chatID string, 
 	return m, nil
 }
 
+//Works
 func (r *queryResolver) GetTopFeelrs(ctx context.Context, top *int) ([]*model.Feelr, error) {
 	existsQuery := elastic.NewExistsQuery("question")
-	searchResult, err := r.Client.Search().
-		Index("feelr").
+	fmt.Println(existsQuery)
+	searchResult, err := client.Search().
+		Index(index).
 		Query(existsQuery).
 		Sort("timestamp", false).
 		Size(*top).
@@ -125,9 +157,10 @@ func (r *queryResolver) GetTopFeelrs(ctx context.Context, top *int) ([]*model.Fe
 	return feelrs, nil
 }
 
+//Doesnt Work. Something to do with NULL Values
 func (r *queryResolver) GetMessages(ctx context.Context, chatID string, last *int) ([]*model.Message, error) {
 	chatQuery := elastic.NewMatchQuery("chat", chatID)
-	searchResult, err := r.Client.Search().
+	searchResult, err := client.Search().
 		Index("feelr").
 		Query(chatQuery).
 		Sort("timestamp", false).
@@ -150,9 +183,10 @@ func (r *queryResolver) GetMessages(ctx context.Context, chatID string, last *in
 	return messages, nil
 }
 
+//Works
 func (r *queryResolver) GetUserInfo(ctx context.Context, userID string) (*model.User, error) {
 	userQuery := elastic.NewMatchQuery("id", userID)
-	searchResult, err := r.Client.Search().
+	searchResult, err := client.Search().
 		Index("feelr").
 		Query(userQuery).
 		Do(ctx)
@@ -161,11 +195,10 @@ func (r *queryResolver) GetUserInfo(ctx context.Context, userID string) (*model.
 		return nil, err
 	}
 
-	if searchResult.Hits.TotalHits.Value > 0 {
+	if searchResult.Hits.TotalHits.Value == 0 {
 		fmt.Println("The user doesn't exist!")
 		return nil, err
 	}
-
 	var user *model.User
 	json.Unmarshal(searchResult.Hits.Hits[0].Source, &user)
 	return user, nil
@@ -176,22 +209,13 @@ func (r *subscriptionResolver) MessageAdded(ctx context.Context, chatID string) 
 }
 
 // Mutation returns generated.MutationResolver implementation.
-func (r *Resolver) Mutation() generated.MutationResolver {
-	r.InitClient()
-	return &mutationResolver{r}
-}
+func (r *Resolver) Mutation() generated.MutationResolver { return &mutationResolver{r} }
 
 // Query returns generated.QueryResolver implementation.
-func (r *Resolver) Query() generated.QueryResolver {
-	r.InitClient()
-	return &queryResolver{r}
-}
+func (r *Resolver) Query() generated.QueryResolver { return &queryResolver{r} }
 
 // Subscription returns generated.SubscriptionResolver implementation.
-func (r *Resolver) Subscription() generated.SubscriptionResolver {
-	r.InitClient()
-	return &subscriptionResolver{r}
-}
+func (r *Resolver) Subscription() generated.SubscriptionResolver { return &subscriptionResolver{r} }
 
 type mutationResolver struct{ *Resolver }
 type queryResolver struct{ *Resolver }

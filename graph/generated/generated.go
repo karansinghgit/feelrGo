@@ -14,7 +14,7 @@ import (
 
 	"github.com/99designs/gqlgen/graphql"
 	"github.com/99designs/gqlgen/graphql/introspection"
-	"github.com/karansinghgit/feelrGo/cmd/graph/model"
+	"github.com/karansinghgit/feelrGo/graph/model"
 	gqlparser "github.com/vektah/gqlparser/v2"
 	"github.com/vektah/gqlparser/v2/ast"
 )
@@ -1162,7 +1162,7 @@ func (ec *executionContext) _Mutation_createFeelr(ctx context.Context, field gra
 	}
 	res := resTmp.(*model.Feelr)
 	fc.Result = res
-	return ec.marshalNFeelr2ᚖgithubᚗcomᚋkaransinghgitᚋfeelrGoᚋcmdᚋgraphᚋmodelᚐFeelr(ctx, field.Selections, res)
+	return ec.marshalNFeelr2ᚖgithubᚗcomᚋkaransinghgitᚋfeelrGoᚋgraphᚋmodelᚐFeelr(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) _Mutation_sendTextMessage(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
@@ -1203,7 +1203,7 @@ func (ec *executionContext) _Mutation_sendTextMessage(ctx context.Context, field
 	}
 	res := resTmp.(*model.Message)
 	fc.Result = res
-	return ec.marshalNMessage2ᚖgithubᚗcomᚋkaransinghgitᚋfeelrGoᚋcmdᚋgraphᚋmodelᚐMessage(ctx, field.Selections, res)
+	return ec.marshalNMessage2ᚖgithubᚗcomᚋkaransinghgitᚋfeelrGoᚋgraphᚋmodelᚐMessage(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) _Mutation_sendFeelrMessage(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
@@ -1244,7 +1244,7 @@ func (ec *executionContext) _Mutation_sendFeelrMessage(ctx context.Context, fiel
 	}
 	res := resTmp.(*model.Message)
 	fc.Result = res
-	return ec.marshalNMessage2ᚖgithubᚗcomᚋkaransinghgitᚋfeelrGoᚋcmdᚋgraphᚋmodelᚐMessage(ctx, field.Selections, res)
+	return ec.marshalNMessage2ᚖgithubᚗcomᚋkaransinghgitᚋfeelrGoᚋgraphᚋmodelᚐMessage(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) _Query_getTopFeelrs(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
@@ -1282,7 +1282,7 @@ func (ec *executionContext) _Query_getTopFeelrs(ctx context.Context, field graph
 	}
 	res := resTmp.([]*model.Feelr)
 	fc.Result = res
-	return ec.marshalOFeelr2ᚕᚖgithubᚗcomᚋkaransinghgitᚋfeelrGoᚋcmdᚋgraphᚋmodelᚐFeelrᚄ(ctx, field.Selections, res)
+	return ec.marshalOFeelr2ᚕᚖgithubᚗcomᚋkaransinghgitᚋfeelrGoᚋgraphᚋmodelᚐFeelrᚄ(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) _Query_getMessages(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
@@ -1320,7 +1320,7 @@ func (ec *executionContext) _Query_getMessages(ctx context.Context, field graphq
 	}
 	res := resTmp.([]*model.Message)
 	fc.Result = res
-	return ec.marshalOMessage2ᚕᚖgithubᚗcomᚋkaransinghgitᚋfeelrGoᚋcmdᚋgraphᚋmodelᚐMessageᚄ(ctx, field.Selections, res)
+	return ec.marshalOMessage2ᚕᚖgithubᚗcomᚋkaransinghgitᚋfeelrGoᚋgraphᚋmodelᚐMessageᚄ(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) _Query_getUserInfo(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
@@ -1361,7 +1361,7 @@ func (ec *executionContext) _Query_getUserInfo(ctx context.Context, field graphq
 	}
 	res := resTmp.(*model.User)
 	fc.Result = res
-	return ec.marshalNUser2ᚖgithubᚗcomᚋkaransinghgitᚋfeelrGoᚋcmdᚋgraphᚋmodelᚐUser(ctx, field.Selections, res)
+	return ec.marshalNUser2ᚖgithubᚗcomᚋkaransinghgitᚋfeelrGoᚋgraphᚋmodelᚐUser(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) _Query___type(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
@@ -1478,7 +1478,7 @@ func (ec *executionContext) _Subscription_messageAdded(ctx context.Context, fiel
 			w.Write([]byte{'{'})
 			graphql.MarshalString(field.Alias).MarshalGQL(w)
 			w.Write([]byte{':'})
-			ec.marshalNMessage2ᚖgithubᚗcomᚋkaransinghgitᚋfeelrGoᚋcmdᚋgraphᚋmodelᚐMessage(ctx, field.Selections, res).MarshalGQL(w)
+			ec.marshalNMessage2ᚖgithubᚗcomᚋkaransinghgitᚋfeelrGoᚋgraphᚋmodelᚐMessage(ctx, field.Selections, res).MarshalGQL(w)
 			w.Write([]byte{'}'})
 		})
 	}
@@ -3157,11 +3157,11 @@ func (ec *executionContext) marshalNBoolean2bool(ctx context.Context, sel ast.Se
 	return res
 }
 
-func (ec *executionContext) marshalNFeelr2githubᚗcomᚋkaransinghgitᚋfeelrGoᚋcmdᚋgraphᚋmodelᚐFeelr(ctx context.Context, sel ast.SelectionSet, v model.Feelr) graphql.Marshaler {
+func (ec *executionContext) marshalNFeelr2githubᚗcomᚋkaransinghgitᚋfeelrGoᚋgraphᚋmodelᚐFeelr(ctx context.Context, sel ast.SelectionSet, v model.Feelr) graphql.Marshaler {
 	return ec._Feelr(ctx, sel, &v)
 }
 
-func (ec *executionContext) marshalNFeelr2ᚖgithubᚗcomᚋkaransinghgitᚋfeelrGoᚋcmdᚋgraphᚋmodelᚐFeelr(ctx context.Context, sel ast.SelectionSet, v *model.Feelr) graphql.Marshaler {
+func (ec *executionContext) marshalNFeelr2ᚖgithubᚗcomᚋkaransinghgitᚋfeelrGoᚋgraphᚋmodelᚐFeelr(ctx context.Context, sel ast.SelectionSet, v *model.Feelr) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
 			ec.Errorf(ctx, "must not be null")
@@ -3185,11 +3185,11 @@ func (ec *executionContext) marshalNID2string(ctx context.Context, sel ast.Selec
 	return res
 }
 
-func (ec *executionContext) marshalNMessage2githubᚗcomᚋkaransinghgitᚋfeelrGoᚋcmdᚋgraphᚋmodelᚐMessage(ctx context.Context, sel ast.SelectionSet, v model.Message) graphql.Marshaler {
+func (ec *executionContext) marshalNMessage2githubᚗcomᚋkaransinghgitᚋfeelrGoᚋgraphᚋmodelᚐMessage(ctx context.Context, sel ast.SelectionSet, v model.Message) graphql.Marshaler {
 	return ec._Message(ctx, sel, &v)
 }
 
-func (ec *executionContext) marshalNMessage2ᚖgithubᚗcomᚋkaransinghgitᚋfeelrGoᚋcmdᚋgraphᚋmodelᚐMessage(ctx context.Context, sel ast.SelectionSet, v *model.Message) graphql.Marshaler {
+func (ec *executionContext) marshalNMessage2ᚖgithubᚗcomᚋkaransinghgitᚋfeelrGoᚋgraphᚋmodelᚐMessage(ctx context.Context, sel ast.SelectionSet, v *model.Message) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
 			ec.Errorf(ctx, "must not be null")
@@ -3227,11 +3227,11 @@ func (ec *executionContext) marshalNTime2timeᚐTime(ctx context.Context, sel as
 	return res
 }
 
-func (ec *executionContext) marshalNUser2githubᚗcomᚋkaransinghgitᚋfeelrGoᚋcmdᚋgraphᚋmodelᚐUser(ctx context.Context, sel ast.SelectionSet, v model.User) graphql.Marshaler {
+func (ec *executionContext) marshalNUser2githubᚗcomᚋkaransinghgitᚋfeelrGoᚋgraphᚋmodelᚐUser(ctx context.Context, sel ast.SelectionSet, v model.User) graphql.Marshaler {
 	return ec._User(ctx, sel, &v)
 }
 
-func (ec *executionContext) marshalNUser2ᚖgithubᚗcomᚋkaransinghgitᚋfeelrGoᚋcmdᚋgraphᚋmodelᚐUser(ctx context.Context, sel ast.SelectionSet, v *model.User) graphql.Marshaler {
+func (ec *executionContext) marshalNUser2ᚖgithubᚗcomᚋkaransinghgitᚋfeelrGoᚋgraphᚋmodelᚐUser(ctx context.Context, sel ast.SelectionSet, v *model.User) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
 			ec.Errorf(ctx, "must not be null")
@@ -3490,7 +3490,7 @@ func (ec *executionContext) marshalOBoolean2ᚖbool(ctx context.Context, sel ast
 	return ec.marshalOBoolean2bool(ctx, sel, *v)
 }
 
-func (ec *executionContext) marshalOFeelr2ᚕᚖgithubᚗcomᚋkaransinghgitᚋfeelrGoᚋcmdᚋgraphᚋmodelᚐFeelrᚄ(ctx context.Context, sel ast.SelectionSet, v []*model.Feelr) graphql.Marshaler {
+func (ec *executionContext) marshalOFeelr2ᚕᚖgithubᚗcomᚋkaransinghgitᚋfeelrGoᚋgraphᚋmodelᚐFeelrᚄ(ctx context.Context, sel ast.SelectionSet, v []*model.Feelr) graphql.Marshaler {
 	if v == nil {
 		return graphql.Null
 	}
@@ -3517,7 +3517,7 @@ func (ec *executionContext) marshalOFeelr2ᚕᚖgithubᚗcomᚋkaransinghgitᚋf
 			if !isLen1 {
 				defer wg.Done()
 			}
-			ret[i] = ec.marshalNFeelr2ᚖgithubᚗcomᚋkaransinghgitᚋfeelrGoᚋcmdᚋgraphᚋmodelᚐFeelr(ctx, sel, v[i])
+			ret[i] = ec.marshalNFeelr2ᚖgithubᚗcomᚋkaransinghgitᚋfeelrGoᚋgraphᚋmodelᚐFeelr(ctx, sel, v[i])
 		}
 		if isLen1 {
 			f(i)
@@ -3576,7 +3576,7 @@ func (ec *executionContext) marshalOInt2ᚖint(ctx context.Context, sel ast.Sele
 	return ec.marshalOInt2int(ctx, sel, *v)
 }
 
-func (ec *executionContext) marshalOMessage2ᚕᚖgithubᚗcomᚋkaransinghgitᚋfeelrGoᚋcmdᚋgraphᚋmodelᚐMessageᚄ(ctx context.Context, sel ast.SelectionSet, v []*model.Message) graphql.Marshaler {
+func (ec *executionContext) marshalOMessage2ᚕᚖgithubᚗcomᚋkaransinghgitᚋfeelrGoᚋgraphᚋmodelᚐMessageᚄ(ctx context.Context, sel ast.SelectionSet, v []*model.Message) graphql.Marshaler {
 	if v == nil {
 		return graphql.Null
 	}
@@ -3603,7 +3603,7 @@ func (ec *executionContext) marshalOMessage2ᚕᚖgithubᚗcomᚋkaransinghgit�
 			if !isLen1 {
 				defer wg.Done()
 			}
-			ret[i] = ec.marshalNMessage2ᚖgithubᚗcomᚋkaransinghgitᚋfeelrGoᚋcmdᚋgraphᚋmodelᚐMessage(ctx, sel, v[i])
+			ret[i] = ec.marshalNMessage2ᚖgithubᚗcomᚋkaransinghgitᚋfeelrGoᚋgraphᚋmodelᚐMessage(ctx, sel, v[i])
 		}
 		if isLen1 {
 			f(i)
