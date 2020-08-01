@@ -81,7 +81,7 @@ var mappinng = `{
 
 //GetNewClient creates and returns a new client
 func GetNewClient() *elastic.Client {
-	client, err := elastic.NewClient(elastic.SetURL("http://localhost:9200"),
+	client, err := elastic.NewClient(elastic.SetURL("http://elasticsearch:9200"),
 		elastic.SetSniff(false),
 		elastic.SetHealthcheck(false))
 	ctx := context.Background()
@@ -91,7 +91,7 @@ func GetNewClient() *elastic.Client {
 		panic("Client fail ")
 	}
 
-	info, code, err := client.Ping("http://127.0.0.1:9200").Do(ctx)
+	info, code, err := client.Ping("http://elasticsearch:9200").Do(ctx)
 	if err != nil {
 		panic(err)
 	}
@@ -105,7 +105,7 @@ func GetNewClient() *elastic.Client {
 	fmt.Println(exists)
 
 	if !exists {
-		fmt.Println("not found feelr index")
+		fmt.Println("not found app index")
 		createIndex, err := client.CreateIndex("app").BodyString(mappinng).Do(ctx)
 		if err != nil {
 			panic(err)

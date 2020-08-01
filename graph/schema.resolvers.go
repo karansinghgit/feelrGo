@@ -10,10 +10,10 @@ import (
 	"time"
 
 	"github.com/google/uuid"
-	"github.com/karansinghgit/feelrGo/cmd/utils"
 	db "github.com/karansinghgit/feelrGo/db"
 	"github.com/karansinghgit/feelrGo/graph/generated"
 	"github.com/karansinghgit/feelrGo/graph/model"
+	"github.com/karansinghgit/feelrGo/utils"
 	"github.com/olivere/elastic/v7"
 )
 
