@@ -5,202 +5,104 @@ package graph
 
 import (
 	"context"
-	"encoding/json"
 	"fmt"
-	"time"
 
-	"github.com/google/uuid"
-	db "github.com/karansinghgit/feelrGo/db"
+	"github.com/karansinghgit/feelrGo/db"
+	"github.com/karansinghgit/feelrGo/doa"
 	"github.com/karansinghgit/feelrGo/graph/generated"
 	"github.com/karansinghgit/feelrGo/graph/model"
-	"github.com/karansinghgit/feelrGo/utils"
-	"github.com/olivere/elastic/v7"
 )
 
-var client = db.GetNewClient()
-
-var index = "app"
-
-//Works
 func (r *mutationResolver) CreateFeelr(ctx context.Context, question string, topic string) (*model.Feelr, error) {
-	f := &model.Feelr{
-		ID:        uuid.New().String(),
-		Question:  question,
-		Topic:     topic,
-		Timestamp: time.Now(),
-	}
-
-	s, err := utils.ParseToString(f)
+	f, err := doa.AddFeelr(ctx, client, index, question, topic)
 
 	if err != nil {
-		fmt.Println("fa")
+		fmt.Println("Could not add Feelr to db")
 		return nil, err
 	}
 
-	_, err = client.Index().
-		Index(index).
-		BodyString(s).
-		Do(ctx)
-
-	if err != nil {
-		fmt.Println("Error Storing the Feelr")
-		return nil, err
-	}
-
-	fmt.Println("Insertion Successful")
+	fmt.Println("[ELASTIC] Insertion Successful")
 	return f, nil
 }
 
-//Works
-func (r *mutationResolver) SendTextMessage(ctx context.Context, chatID string, sender string, text string) (*model.Message, error) {
-	m := &model.Message{
-		Chat:      chatID,
-		Sender:    sender,
-		Text:      &text,
-		Timestamp: time.Now(),
-	}
-
-	s, err := utils.ParseToString(m)
+func (r *mutationResolver) SendTextMessage(ctx context.Context, chatID string, senderID string, text string) (*model.Message, error) {
+	m, err := doa.AddTextMessage(ctx, client, index, chatID, senderID, text)
 
 	if err != nil {
-		fmt.Println("fa")
+		fmt.Println("Could not add Text Message to db")
 		return nil, err
 	}
 
-	_, err = client.Index().
-		Index(index).
-		BodyString(s).
-		Do(ctx)
+	fmt.Println("[ELASTIC] Insertion Successful")
+	return m, nil
+}
+
+func (r *mutationResolver) SendFeelrMessage(ctx context.Context, chatID string, feelrID string, senderID string, answer string) (*model.Message, error) {
+	docID, _ := doa.GetFeelrMessage(ctx, client, index, chatID, feelrID)
+
+	var m *model.Message
+	var err error
+
+	if docID != "" {
+		m, err = doa.SendMessageResponse(ctx, client, index, docID, answer)
+	} else {
+		m, err = doa.AddFeelrMessage(ctx, client, index, chatID, senderID, feelrID, answer)
+	}
 
 	if err != nil {
-		fmt.Println("Error Storing the Feelr", err)
+		fmt.Println("Could not add Feelr Message Answer to db")
+		return nil, err
+	}
+
+	fmt.Println("[ELASTIC] Insertion Successful")
+	return m, nil
+}
+
+func (r *mutationResolver) CreateChat(ctx context.Context, senderID string, receiverID string) (*model.Chat, error) {
+	c, err := doa.AddChat(ctx, client, index, senderID, receiverID)
+
+	if err != nil {
+		fmt.Println("Could not add Couple to db")
 		return nil, err
 	}
 
 	fmt.Println("Insertion Successful")
-	return m, nil
+	return c, nil
 }
 
-//Works
-func (r *mutationResolver) SendFeelrMessage(ctx context.Context, chatID string, feelrID string, sender string, answer string) (*model.Message, error) {
-	chatQuery := elastic.NewMatchQuery("chat", chatID)
-	feelrQuery := elastic.NewMatchQuery("feelr", feelrID)
-
-	query := elastic.NewBoolQuery().Must(chatQuery, feelrQuery)
-	searchResult, err := client.Search().
-		Index(index).
-		Query(query).
-		Do(ctx)
-
-	if err != nil {
-		return nil, err
-	}
-	var m *model.Message
-
-	if searchResult.Hits.TotalHits.Value > 0 {
-		res, err := client.Update().Index("feelr").Id(searchResult.Hits.Hits[0].Id).Doc(map[string]interface{}{"receiverAnswer": answer}).Do(ctx)
-		if err != nil {
-			return nil, err
-		}
-
-		err = json.Unmarshal(res.GetResult.Source, &m)
-		if err != nil {
-			fmt.Println("Error initializing : ", err)
-			return nil, err
-		}
-	} else {
-		m = &model.Message{
-			Chat:         chatID,
-			Sender:       sender,
-			Feelr:        &feelrID,
-			SenderAnswer: &answer,
-			Timestamp:    time.Now(),
-		}
-		dataJSON, err := json.Marshal(m)
-		js := string(dataJSON)
-		_, err = client.Index().
-			Index(index).
-			BodyJson(js).
-			Do(ctx)
-
-		if err != nil {
-			return nil, err
-		}
-		fmt.Println("[Elastic]Insertion Successful")
-	}
-	return m, nil
-}
-
-//Works
 func (r *queryResolver) GetTopFeelrs(ctx context.Context, top *int) ([]*model.Feelr, error) {
-	existsQuery := elastic.NewExistsQuery("question")
-	fmt.Println(existsQuery)
-	searchResult, err := client.Search().
-		Index(index).
-		Query(existsQuery).
-		Sort("timestamp", false).
-		Size(*top).
-		Do(ctx)
+	feelrs, err := doa.GetFeelrs(ctx, client, index, *top)
 
 	if err != nil {
+		fmt.Println("Could not fetch feelrs from db")
 		return nil, err
 	}
-	var feelrs []*model.Feelr
-	for _, hit := range searchResult.Hits.Hits {
-		var feelr model.Feelr
-		err := json.Unmarshal(hit.Source, &feelr)
-		if err != nil {
-			return nil, err
-		}
-		feelrs = append(feelrs, &feelr)
-	}
+
+	fmt.Println("[ELASTIC] Fetch Successful")
 	return feelrs, nil
 }
 
-//Doesnt Work. Something to do with NULL Values
 func (r *queryResolver) GetMessages(ctx context.Context, chatID string, last *int) ([]*model.Message, error) {
-	chatQuery := elastic.NewMatchQuery("chat", chatID)
-	searchResult, err := client.Search().
-		Index("feelr").
-		Query(chatQuery).
-		Sort("timestamp", false).
-		Size(*last).
-		Do(ctx)
+	messages, err := doa.GetChatMessages(ctx, client, index, chatID, *last)
 
 	if err != nil {
+		fmt.Println("Could not fetch messages from db")
 		return nil, err
 	}
-	var messages []*model.Message
 
-	for _, hit := range searchResult.Hits.Hits {
-		var message model.Message
-		err := json.Unmarshal(hit.Source, &message)
-		if err != nil {
-			return nil, err
-		}
-		messages = append(messages, &message)
-	}
+	fmt.Println("[ELASTIC] Fetch Successful")
 	return messages, nil
 }
 
-//Works
 func (r *queryResolver) GetUserInfo(ctx context.Context, userID string) (*model.User, error) {
-	userQuery := elastic.NewMatchQuery("id", userID)
-	searchResult, err := client.Search().
-		Index("feelr").
-		Query(userQuery).
-		Do(ctx)
+	user, err := doa.GetUser(ctx, client, index, userID)
 
 	if err != nil {
+		fmt.Println("Could not fetch messages from db")
 		return nil, err
 	}
 
-	if searchResult.Hits.TotalHits.Value == 0 {
-		fmt.Println("The user doesn't exist!")
-		return nil, err
-	}
-	var user *model.User
-	json.Unmarshal(searchResult.Hits.Hits[0].Source, &user)
+	fmt.Println("[ELASTIC] Fetch Successful")
 	return user, nil
 }
 
@@ -220,3 +122,12 @@ func (r *Resolver) Subscription() generated.SubscriptionResolver { return &subsc
 type mutationResolver struct{ *Resolver }
 type queryResolver struct{ *Resolver }
 type subscriptionResolver struct{ *Resolver }
+
+// !!! WARNING !!!
+// The code below was going to be deleted when updating resolvers. It has been copied here so you have
+// one last chance to move it out of harms way if you want. There are two reasons this happens:
+//  - When renaming or deleting a resolver the old code will be put in here. You can safely delete
+//    it when you're done.
+//  - You have helper methods in this file. Move them out to keep these resolver files clean.
+var client = db.GetNewClient()
+var index = "app"

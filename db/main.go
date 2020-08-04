@@ -7,112 +7,48 @@ import (
 	"github.com/olivere/elastic/v7"
 )
 
+var index = "app"
+
 //try not to have any duplicate names
-var mappinng = `{
-	"mappings": {
-	  "properties": {
-		"feelra": {
-		  "properties": {
-			"id": {
-			  "type": "text"
-			},
-			"question": {
-			  "type": "text"
-			},
-			"timestamp": {
-			  "type": "text"
-			},
-			"topic": {
-			  "type": "text"
-			}
-		  }
-		},
-		"message": {
-		  "properties": {
-			"chat": {
-			  "type": "text"
-			},
-			"sender": {
-			  "type": "text"
-			},
-			"text": {
-			  "type": "text"
-			},
-			"feelr": {
-			  "type": "text"
-			},
-			"senderAnswer": {
-			  "type": "text"
-			},
-			"receiverAnswer": {
-			  "type": "text"
-			},
-			"timestamp": {
-			  "type": "text"
-			}
-		  }
-		},
-		"user": {
-		  "properties": {
-			"id": {
-			  "type": "text"
-			},
-			"name": {
-		      "type": "text"
-			}
-		  }
-		},
-		"chata": {
-		  "properties": {
-			"id": {
-			  "type": "text"
-			},
-			"sender": {
-			  "type": "text"
-			},
-			"receiver": {
-			  "type": "text"
-			}
-		  }
-		}
-	  }
-	}
-  }`
+var mapping = Mapping
 
 //GetNewClient creates and returns a new client
 func GetNewClient() *elastic.Client {
-	client, err := elastic.NewClient(elastic.SetURL("http://elasticsearch:9200"),
-		elastic.SetSniff(false),
-		elastic.SetHealthcheck(false))
 	ctx := context.Background()
 
+	client, err := elastic.NewClient(elastic.SetURL("http://localhost:9200"),
+		elastic.SetSniff(false),
+		elastic.SetHealthcheck(false))
+
 	if err != nil {
-		fmt.Println("Error initializing : ", err)
+		fmt.Println("Error initializing a new ES Client:: ", err)
 		panic("Client fail ")
 	}
 
-	info, code, err := client.Ping("http://elasticsearch:9200").Do(ctx)
+	info, code, err := client.Ping("http://localhost:9200").Do(ctx)
 	if err != nil {
-		panic(err)
-	}
-	fmt.Printf("Elasticsearch returned with code %d and version %s\n", code, info.Version.Number)
-
-	exists, err := client.IndexExists("app").Do(ctx)
-	if err != nil {
+		fmt.Println("Error pinging the ES Client:: ", err)
 		panic(err)
 	}
 
-	fmt.Println(exists)
+	fmt.Printf("[SUCCESS] Elasticsearch returned with code %d and version %s\n", code, info.Version.Number)
+
+	exists, err := client.IndexExists(index).Do(ctx)
+	if err != nil {
+		panic(err)
+	}
 
 	if !exists {
-		fmt.Println("not found app index")
-		createIndex, err := client.CreateIndex("app").BodyString(mappinng).Do(ctx)
+		fmt.Printf("Index [%v] wasn't found. Initializing index [%v]\n", index, index)
+		createIndex, err := client.CreateIndex("app").BodyString(mapping).Do(ctx)
 		if err != nil {
 			panic(err)
 		}
 		if !createIndex.Acknowledged {
-			fmt.Println("Index could not be ack")
+			fmt.Println("Index Created but couldn't be checked.")
 		}
+	} else {
+		fmt.Printf("Continuing with index [%v]\n", index)
 	}
 	return client
 }

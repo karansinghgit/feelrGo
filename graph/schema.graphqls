@@ -1,31 +1,31 @@
 scalar Time
 
 type Feelr {
-  id: ID!
+  feelrId: ID!
   question: String!
   timestamp: Time!
   topic: String!
 }
 
 type Message {
-  chat: ID!
-  sender: ID!
+  chatId: ID!
+  senderId: ID!
   text: String
-  feelr: ID
+  feelrId: ID
   senderAnswer: String
   receiverAnswer: String
   timestamp: Time!
 }
 
 type User {
-  id: ID!
+  userId: ID!
   name: String!
 }
 
 type Chat {
-  id: ID!
-  sender: ID!
-  receiver: ID!
+  chatId: ID!
+  senderId: ID!
+  receiverId: ID!
 }
 
 type Query {
@@ -37,13 +37,15 @@ type Query {
 type Mutation {
   createFeelr(question: String!, topic: String!): Feelr!
 
-  sendTextMessage(chatID: ID!, sender: ID!, text: String!): Message!
+  sendTextMessage(chatID: ID!, senderID: ID!, text: String!): Message!
   sendFeelrMessage(
     chatID: ID!
     feelrID: ID!
-    sender: ID!
+    senderID: ID!
     answer: String!
   ): Message!
+
+  createChat(senderId: String!, receiverId: String!): Chat!
 }
 
 type Subscription {

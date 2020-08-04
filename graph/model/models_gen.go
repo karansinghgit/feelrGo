@@ -7,29 +7,29 @@ import (
 )
 
 type Chat struct {
-	ID       string `json:"id"`
-	Sender   string `json:"sender"`
-	Receiver string `json:"receiver"`
+	ChatID     string `json:"chatId"`
+	SenderID   string `json:"senderId"`
+	ReceiverID string `json:"receiverId"`
 }
 
 type Feelr struct {
-	ID        string    `json:"id"`
+	FeelrID   string    `json:"feelrId"`
 	Question  string    `json:"question"`
 	Timestamp time.Time `json:"timestamp"`
 	Topic     string    `json:"topic"`
 }
 
 type Message struct {
-	Chat           string    `json:"chat"`
-	Sender         string    `json:"sender"`
+	ChatID         string    `json:"chatId"`
+	SenderID       string    `json:"senderId"`
 	Text           *string   `json:"text"`
-	Feelr          *string   `json:"feelr"`
+	FeelrID        *string   `json:"feelrId"`
 	SenderAnswer   *string   `json:"senderAnswer"`
 	ReceiverAnswer *string   `json:"receiverAnswer"`
 	Timestamp      time.Time `json:"timestamp"`
 }
 
 type User struct {
-	ID   string `json:"id"`
-	Name string `json:"name"`
+	UserID string `json:"userId"`
+	Name   string `json:"name"`
 }

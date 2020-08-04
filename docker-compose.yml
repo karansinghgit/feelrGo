@@ -16,8 +16,8 @@ services:
         hard: -1
     ports:
       - 9200:9200
-  gqlgen:
-    container_name: "gqlgen"
+  golang:
+    container_name: "golang"
     build:
       context: .
       dockerfile: Dockerfile
@@ -26,3 +26,5 @@ services:
     restart: unless-stopped
     depends_on:
       - elasticsearch
+    environment:
+      - "ELASTICSEARCH_HOST=elasticsearch"
