@@ -6,7 +6,7 @@ var Mapping = `{
 	  "properties": {
 		"feelr": {
 		  "properties": {
-			"feelrId": {
+			"feelrID": {
 			  "type": "text"
 			},
 			"question": {

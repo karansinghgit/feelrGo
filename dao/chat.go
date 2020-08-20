@@ -1,45 +1,31 @@
-package doa
+package dao
 
 import (
 	"context"
 	"encoding/json"
-	"fmt"
 
-	"github.com/google/uuid"
-	"github.com/karansinghgit/feelrGo/graph/model"
-	"github.com/karansinghgit/feelrGo/utils"
+	"github.com/karansinghgit/feelrGo/graphql/model"
 	"github.com/olivere/elastic/v7"
 )
 
-func AddChat(ctx context.Context, client *elastic.Client, index string, senderID string, receiverID string) (*model.Chat, error) {
-	c := &model.Chat{
-		ChatID:     uuid.New().String(),
-		SenderID:   senderID,
-		ReceiverID: receiverID,
-	}
-
-	s, err := utils.ParseToString(c)
-
-	if err != nil {
-		return nil, err
-	}
-
-	_, err = client.Index().
+//AddChat will create a new chat (partner relationship) to the DB
+func AddChat(ctx context.Context, client *elastic.Client, index string, s string) error {
+	_, err := client.Index().
 		Index(index).
 		BodyString(s).
 		Do(ctx)
 
 	if err != nil {
-		fmt.Println("Error Storing the Chat")
-		return nil, err
+		return err
 	}
-	return c, nil
+	return nil
 }
 
+//GetChatMessages will fetch chat messages from specified chatID from the DB
 func GetChatMessages(ctx context.Context, client *elastic.Client, index string, chatID string, last int) ([]*model.Message, error) {
 	chatQuery := elastic.NewMatchQuery("chatID", chatID)
 	searchResult, err := client.Search().
-		Index("feelr").
+		Index(index).
 		Query(chatQuery).
 		Sort("timestamp", false).
 		Size(last).
@@ -48,6 +34,7 @@ func GetChatMessages(ctx context.Context, client *elastic.Client, index string, 
 	if err != nil {
 		return nil, err
 	}
+
 	var messages []*model.Message
 
 	for _, hit := range searchResult.Hits.Hits {
@@ -58,5 +45,6 @@ func GetChatMessages(ctx context.Context, client *elastic.Client, index string, 
 		}
 		messages = append(messages, &message)
 	}
+
 	return messages, nil
 }

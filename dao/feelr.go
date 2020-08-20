@@ -1,45 +1,29 @@
-package doa
+package dao
 
 import (
 	"context"
 	"encoding/json"
-	"fmt"
-	"time"
 
-	"github.com/google/uuid"
-	"github.com/karansinghgit/feelrGo/graph/model"
-	"github.com/karansinghgit/feelrGo/utils"
+	"github.com/karansinghgit/feelrGo/graphql/model"
 	"github.com/olivere/elastic/v7"
 )
 
-func AddFeelr(ctx context.Context, client *elastic.Client, index string, question string, topic string) (*model.Feelr, error) {
-	f := &model.Feelr{
-		FeelrID:   uuid.New().String(),
-		Question:  question,
-		Topic:     topic,
-		Timestamp: time.Now(),
-	}
-
-	s, err := utils.ParseToString(f)
-
-	if err != nil {
-		return nil, err
-	}
-
-	_, err = client.Index().
+//AddFeelr will add a feelr to the DB
+func AddFeelr(ctx context.Context, client *elastic.Client, index string, s string) error {
+	_, err := client.Index().
 		Index(index).
 		BodyString(s).
 		Do(ctx)
 
 	if err != nil {
-		fmt.Println("Error Storing the Feelr")
-		return nil, err
+		return err
 	}
-	return f, err
+	return nil
 }
 
+//GetFeelrs will fetch feelrs from the DB
 func GetFeelrs(ctx context.Context, client *elastic.Client, index string, count int) ([]*model.Feelr, error) {
-	existsQuery := elastic.NewExistsQuery("senderID")
+	existsQuery := elastic.NewExistsQuery("question")
 	searchResult, err := client.Search().
 		Index(index).
 		Query(existsQuery).
@@ -60,5 +44,6 @@ func GetFeelrs(ctx context.Context, client *elastic.Client, index string, count 
 		}
 		feelrs = append(feelrs, &feelr)
 	}
+
 	return feelrs, nil
 }

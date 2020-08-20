@@ -1,0 +1,64 @@
+type Feelr {
+  feelrID: ID!
+  question: String!
+  timestamp: Time!
+  topic: String!
+  createdBy: ID!
+}
+
+type Message {
+  chatID: ID!
+  senderID: ID!
+  timestamp: Time!
+  # if it's a text message
+  text: String
+  # else a feelr message
+  feelrID: ID
+  senderAnswer: String
+  receiverAnswer: String
+}
+
+type User {
+  userID: ID!
+  userToken: ID
+  # userType could be editor, user
+  userType: String!
+  username: String!
+  # relState could be available, pending, engaged
+  relState: String!
+  partnerID: String
+}
+
+type Chat {
+  chatID: ID!
+  senderID: ID!
+  receiverID: ID!
+}
+
+type Query {
+  getTopFeelrs(top: Int = 20): [Feelr!]
+  getMessages(chatID: ID!, last: Int = 50): [Message!]
+  getUserInfo(userID: ID!): User!
+  checkUsername(username: String!): String!
+  checkPartnerState(userID: ID!): String!
+}
+
+type Mutation {
+  createFeelr(question: String!, topic: String!, createdBy: ID!): Feelr!
+  createChat(senderID: String!, receiverID: String!): Chat!
+  createUser(username: String!, userToken: String, partnerID: String): User!
+
+  sendTextMessage(chatID: ID!, senderID: ID!, text: String!): Message!
+  sendFeelrMessage(
+    chatID: ID!
+    senderID: ID!
+    feelrID: ID!
+    answer: String!
+  ): Message!
+}
+
+type Subscription {
+  messageAdded(chatID: ID!): Message!
+}
+
+scalar Time
