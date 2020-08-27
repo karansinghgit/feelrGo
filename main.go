@@ -78,6 +78,7 @@ func TokenVerification() gin.HandlerFunc {
 
 func main() {
 	r := gin.Default()
+	// r.Use(TokenVerification())
 	r.POST("/query", graphqlHandler())
 	r.GET("/", playgroundHandler())
 	r.Run(defaultPort)
